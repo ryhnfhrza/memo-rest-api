@@ -14,6 +14,12 @@ type MemoesControllerImpl struct {
 	memoesService service.MemoesService
 }
 
+func NewMemoesController(service service.MemoesService)MemoesController{
+	return &MemoesControllerImpl{
+		memoesService: service,
+	}
+}
+
 func(memoesController *MemoesControllerImpl)Create(writer http.ResponseWriter,request *http.Request,params httprouter.Params){
 	memoesCreateRequest := web.MemoesCreateRequest{}
 	helper.ReadFromRequestBody(request, &memoesCreateRequest)

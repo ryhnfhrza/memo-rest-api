@@ -12,6 +12,10 @@ type MemoesRepositoryImpl struct{
 
 }
 
+func NewMemoesRepository()MemoesRepository{
+	return &MemoesRepositoryImpl{}
+}
+
 func(memoesRepository *MemoesRepositoryImpl)Create(ctx context.Context,tx *sql.Tx,memoes domain.Memoes)domain.Memoes{
 	SQL := "insert into memoes (title,memoText) values (?,?)"
 	result ,err := tx.ExecContext(ctx,SQL,memoes.Title,memoes.MemoText)
@@ -43,6 +47,7 @@ func(memoesRepository *MemoesRepositoryImpl)FindById(ctx context.Context,tx *sql
 	SQL := "select id,title,memoText,created_at,updated_at from memoes where id = ?"
 	rows,err := tx.QueryContext(ctx,SQL,memoesId)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	memoes := domain.Memoes{}
 	if rows.Next(){
@@ -56,9 +61,10 @@ func(memoesRepository *MemoesRepositoryImpl)FindById(ctx context.Context,tx *sql
 }
 
 func(memoesRepository *MemoesRepositoryImpl)FindByTitle(ctx context.Context,tx *sql.Tx,memoesTitle string)(domain.Memoes,error){
-	SQL := "select id,title,memoText,created_at,updated_at from memoes where title = ?"
+	SQL := "select id,title,memoText,created_at,updated_at from memoes where title like(?)"
 	rows,err := tx.QueryContext(ctx,SQL,memoesTitle)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	memoes := domain.Memoes{}
 	if rows.Next(){
